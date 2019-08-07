@@ -90,7 +90,7 @@ class scale_threads(threading.Thread):
 
                 print(response)
 
-                if (response["status"] == "finished"):
+                if (((response['d_ret']['l_status'])[0]) == "finished"):
                     self.success = True
                     self.CALC = True
                     return

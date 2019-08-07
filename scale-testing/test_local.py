@@ -87,6 +87,7 @@ for x in range(RANGE):
      jid = new_id[-1]
      dirs.append(jid)
      cmd = 'bash %s/ChRIS-E2E/scripts/run_pfioh_push %s %s /tmp/%s' % (PATH, PFIOH_IP, jid, SIZE)
+     print(cmd)
      process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE, shell=False, close_fds=True)
      stdout, stderr = process.communicate()
 
@@ -187,11 +188,11 @@ while (incomplete != [] and wait_time <= MAX_DELAY):
 
           try:
                response = json.loads(stdout)
-               if (response["status"] == "finished"):
+               if (((response['d_ret']['l_status'])[0]) == "finished"):
                     incomplete.remove(job)
                     pman_success += 1
                     print("Job " + str(job) + " succeeeded!")
-               elif (response["status"] == "started"):
+               elif (((response['d_ret']['l_status'])[0]) == "started"):
                     print("Job " + str(job) + " in progress")
                else:
                     print("Job " + str(job) + " failed or incomplete")
@@ -307,7 +308,7 @@ if CAPTURE:
      mem_util = mem/count
      success_rate = (pfioh_success / RANGE) * 100
 
-     pfioh_results = "PFIOH PUSH: \n____________\nCPU utilization is: %s\nMemory utilization is: %s\nRuntime is %s\nSuccess rate is: %s\n\n" % (str(cpu_util), str(mem_util), str(runtime), str(success))
+     pfioh_results = "PFIOH PULL: \n____________\nCPU utilization is: %s\nMemory utilization is: %s\nRuntime is %s\nSuccess rate is: %s\n\n" % (str(cpu_util), str(mem_util), str(runtime), str(success))
 
      print(pfioh_results)
      results.write(pfioh_results)
