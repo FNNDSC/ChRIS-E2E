@@ -35,6 +35,7 @@ IP = config.get('ConfigInfo', 'PFIOH_IP').replace('"', '')
 SIZE = config.get('ConfigInfo', 'SIZE')
 OP = config.get('ConfigInfo', 'OP').replace('"', '')
 PATH = config.get('ConfigInfo', 'CHRIS_PATH').strip("'")
+x = 0
 
 dt = datetime.datetime.now()
 r_name = "test_pfioh_request_results_%s_%s.txt" % (str(dt.date()), str(dt.time()))
@@ -49,7 +50,7 @@ test_setup.check()
 
 if CAPTURE:
     # get PID of pfioh
-    process = Popen("pgrep pfioh", stdout=PIPE, stderr=PIPE, shell=True)
+    process = Popen("pgrep -f pfioh", stdout=PIPE, stderr=PIPE, shell=True)
     stdout, stderr = process.communicate()
     PID = int(stdout)
 else:

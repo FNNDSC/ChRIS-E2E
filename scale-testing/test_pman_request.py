@@ -41,7 +41,7 @@ results.write("METRICS: %s concurrent requests of size %s\n" % (str(RANGE), str(
 
 if CAPTURE:
     # get PID of pman
-    process = Popen("pgrep pman", stdout=PIPE, stderr=PIPE, shell=True)
+    process = Popen("pgrep -f pman", stdout=PIPE, stderr=PIPE, shell=True)
     stdout, stderr = process.communicate()
     PID = int(stdout)
 else:
@@ -66,7 +66,7 @@ for x in range(1, RANGE + 1):
         stdout, stderr = process.communicate()
 
         #cmd = 'bash pman_scale/pman.sh %s run %s %s' % (str(JID), IP, PLUGIN)
-        cmd = 'bash %s/ChRIS-E2E/scripts/run_pman %s %s %s' % (PATH, str(JID), PMAN_IP, PLUGIN)
+        cmd = 'bash %s/ChRIS-E2E/scripts/run_pman %s %s %s %s' % (PATH, str(JID), PMAN_IP, f'TestService{n}', PLUGIN)
         pman_req.add(cmd, JID, PMAN_IP)        
     pman_req.start()
 

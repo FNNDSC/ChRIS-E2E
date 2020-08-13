@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-import sys, os
+import os
+import sys
+
 sys.path.append(os.path.abspath('../'))
 from test_time import test_time
 import configparser
@@ -12,7 +14,6 @@ NOTES:
    * the last number y (e.g. ... % IP, 20, y) denotes the number of minutes for which to run pman    
 """
 
-
 config = configparser.ConfigParser()
 config.read('config.cfg')
 
@@ -22,7 +23,8 @@ TIME = config.get('ConfigInfo', 'TIME')
 IMAGE = config.get('ConfigInfo', 'PLUGIN')
 PATH = config.get('ConfigInfo', 'CHRIS_PATH')
 
-test = test_time('pman', 'bash %s/ChRIS-E2E/scripts/run_pman %s %s %s' % (PATH, "jid", IP, IMAGE), int(NUM_REQ), int(TIME))
+test = test_time('pman', 'bash %s/ChRIS-E2E/scripts/run_pman %s %s %s %s' % (PATH, "jid", IP,
+                                                                             f'TestService101', IMAGE), int(NUM_REQ),
+                 int(TIME))
 test.run()
 test.graph()
-
