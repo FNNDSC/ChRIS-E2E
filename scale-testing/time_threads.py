@@ -1,8 +1,9 @@
 #!/usr/bin/env python3  
 
 import sys, os
+
 sys.path.append(os.path.abspath('pman_scale'))
-#sys.path.append('/home/ckaubisch/ChRIS-E2E/scale-testing/pman_scale')
+# sys.path.append('/home/ckaubisch/ChRIS-E2E/scale-testing/pman_scale')
 import time
 
 import shlex
@@ -31,6 +32,7 @@ PATH = config.get('ConfigInfo', 'CHRIS_PATH')
 PMAN_IP = config.get('ConfigInfo', 'PMAN_IP')
 IMAGE = config.get('ConfigInfo', 'PLUGIN')
 MAX_DELAY = (int)(config.get('ConfigInfo', 'MAX_DELAY'))
+
 
 class time_threads(threading.Thread):
     """                                                                                                                                                           
@@ -64,17 +66,17 @@ class time_threads(threading.Thread):
         Run the given command as long as RUN is true
         """
 
-        #dirs = []
-        
-        while(self.RUN):
+        # dirs = []
 
-            print ("ITERATION")
-            
+        while (self.RUN):
+
+            print("ITERATION")
+
             # generate new id for the job to be run
             new_id = (str(uuid.uuid4())).split('-')
             jid = new_id[-1]
-            print ("New JID is " + str(jid) + "\n")
-         #   dirs.append(jid)
+            print("New JID is " + str(jid) + "\n")
+            #   dirs.append(jid)
 
             # what command will we be running
             if self.pname == 'pman':
@@ -83,47 +85,46 @@ class time_threads(threading.Thread):
                 stdout, stderr = process.communicate()
 
                 # check for success; if pfioh didn't push successfully return error and do not proceed to pman
-                
-                cmd = 'bash %s/ChRIS-E2E/scripts/run_pman %s %s %s' % (PATH, jid, PMAN_IP, IMAGE)
-                
+
+                cmd = 'bash %s/ChRIS-E2E/scripts/run_pman %s %s %s %s' % (PATH, jid, f'TestService{jid}',
+                                                                          PMAN_IP, IMAGE)
+
             elif self.pname == 'pfioh':
                 cmd = 'bash %s/ChRIS-E2E/scripts/run_pfioh_push %s %s /tmp/%s' % (PATH, PFIOH_IP, jid, SIZE)
             else:
                 print("ERROR! Running neither pman nor pfioh")
-                return   
+                return
 
-            # start measuring time
+                # start measuring time
             start = time.time()
 
             # execute command
             process = Popen(shlex.split(cmd), stdout=PIPE, stderr=PIPE, shell=False, close_fds=True)
             stdout, stderr = process.communicate()
-            
+
             print(stdout)
             print(stderr)
 
-            
             ######### Calculate Results #########
 
             self.calc_success(jid, stdout)
-            self.duration = time.time() - start # an approximation since we have to wait for the status call to pman to return, we don't know exactly when the job completed. We only know when we got a successful status returned.
+            self.duration = time.time() - start  # an approximation since we have to wait for the status call to pman to return, we don't know exactly when the job completed. We only know when we got a successful status returned.
 
-             
     def calc_success(self, jid, stdout):
         """
         """
-        
+
         try:
-            d = json.loads(stdout)
+            d = json.loads(json.loads(stdout))
         except:
             print("Some exception occurred; output could not be loaded as JSON")
             print(stdout)
             return False
-        
+
         if self.pname == 'pfioh':
-            
+
             status = bool(d['stdout']['status'])
-            
+
             if not status:
                 self.success = False
                 print(d['stdout']['msg'])
@@ -133,10 +134,10 @@ class time_threads(threading.Thread):
             return status
 
         elif self.pname == 'pman':
-            
+
             index = 0
             wait_time = 0
-            
+
             while (wait_time <= MAX_DELAY):
                 index += 1
                 cmd = 'bash %s/ChRIS-E2E/scripts/run_pman_status %s %s' % (PATH, PMAN_IP, jid)
@@ -145,17 +146,17 @@ class time_threads(threading.Thread):
 
                 try:
                     response = json.loads(stdout)
-                    if (response["status"] == "finished"):
+                    if len(response['d_ret']['l_status']) and response["status"] == "finished":
                         print("Job " + str(jid) + " succeeeded!")
                         self.success = True
                         return True
-                    elif (response["status"] == "started"):
+                    elif len(response['d_ret']['l_status']) and response["status"] == "started":
                         print("Job " + str(jid) + " in progress")
                     else:
                         print("Job " + str(jid) + " failed or incomplete")
                 except (ValueError, TypeError):
-                    print ("Error: problem loading response as JSON\n")
-                    print (stdout)
+                    print("Error: problem loading response as JSON\n")
+                    print(stdout)
 
                 time.sleep(2 * math.log(index))
                 wait_time += (2 * math.log(index))
@@ -166,7 +167,7 @@ class time_threads(threading.Thread):
         else:
             print("Pname is not valid!")
             self.success = False
-            return False    
+            return False
 
     def get_duration(self):
         """
@@ -179,5 +180,3 @@ class time_threads(threading.Thread):
         Return success of request
         """
         return self.success
-
-
