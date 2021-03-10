@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+IP=$1
+JOBID=$2
+
+
+http POST http://$IP/api/v1/ json=\
+'{ "auid": "samal.s@husky.neu.edu",
+    "cmd_args": "--prefix test --sleepLength 0",
+    "cmd_path_flags": "",
+    "cpu_limit": "4000M",
+    "execshell": "/usr/local/bin/python",
+    "gpu_limit": "0",
+    "image": "fnndsc/pl-simpledsapp",
+    "jid": "'$JOBID'",
+    "memory_limit": "4000Mi",
+    "number_of_workers": "1",
+    "selfexec": "simpledsapp", 
+    "selfpath": "/usr/local/bin", 
+    "type": "ds"
+}'
+

@@ -8,7 +8,7 @@ pfurl --verb POST --raw --http $IP/api/v1/cmd --jsonwrapper 'payload' --msg \
           '{   "action": "run",                                                                                                                                         
                "meta":  {                                                                                                                                               
                     "cmd":      "python3 /usr/src/simpledsapp/simpledsapp.py --prefix test- --sleepLength 0 /share/incoming /share/outgoing",                           
-                    "auid": "rudolphpienaar",                                                                                                                           
+                    "auid": "samal.s@husky.neu.edu",                                                                                                                           
                     "jid":      "'$JOBID'",                                                                                                                             
                     "threaded": true,                                                                                                                                   
                     "container": {                                                                                                                                      
@@ -18,4 +18,4 @@ pfurl --verb POST --raw --http $IP/api/v1/cmd --jsonwrapper 'payload' --msg \
                           },                                                                                                                                            
                     "number_of_workers": "1"                                                                                                                            
                 }                                                                                                                                                       
-           }' --quiet --jsonpprintindent 4
+           }' --quiet --jsonpprintindent 4 --authToken password

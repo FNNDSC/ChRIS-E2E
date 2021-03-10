@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-pfurl --verb POST --raw --httpResponseBodyParse --http $1/api/v1/cmd --msg \
+pfurl --verb POST --raw --http $1/api/v1/cmd --msg \
 "{  \"action\": \"pullPath\",
     \"meta\": {
         \"remote\": {
@@ -18,4 +18,4 @@ pfurl --verb POST --raw --httpResponseBodyParse --http $1/api/v1/cmd --msg \
             }
         }
     }
-}" --quiet --jsonpprintindent 4
+}" --quiet --jsonpprintindent 4 --authToken password

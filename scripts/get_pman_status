@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+IP=$1
+JOBID=$2
+
+http GET http://$IP/api/v1/$JOBID/
