@@ -1,0 +1,12 @@
+#!/usr/bin/env bash                                                                                                                                                     
+
+JOBID=$1
+IP=$2
+IMAGE=$3
+
+http -f POST $IP/api/v1/  cmd_args='--prefix test --sleepLength 0' cmd_path_flags='' auid=samal.s@husky.neu.edu number_of_workers=1 cpu_limit=4000M memory_limit=4000Mi gpu_limit=0 image=fnndsc/pl-simpledsapp selfexec=simpledsapp selfpath=/usr/local/bin execshell=/usr/local/bin/python type=ds data_file@/tmp/small/100307/brain.mgz jid=$JOBID
+
+                                                                                                                                               
+                                                                                                                        
+                                                                                                                                                                     
+     

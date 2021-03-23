@@ -17,4 +17,4 @@ pfurl --verb POST --httpResponseBodyParse --raw --http $1/api/v1/cmd --msg \
             }
         }
     }
-}" --quiet --jsonpprintindent 4 --authToken password
+}" --quiet --jsonpprintindent 4
