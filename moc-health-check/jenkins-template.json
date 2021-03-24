@@ -1,0 +1,172 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "jenkins-openshift",
+      "annotations": {
+        "description": "Creates jenkins on OpenShift",
+        "tags": ""
+      }
+    },
+    "objects": [
+      {
+        "apiVersion": "v1",
+        "kind": "DeploymentConfig",
+        "metadata": {
+          "generation": 1,
+          "labels": {
+            "app": "jenkins-py"
+          },
+          "name": "jenkins-py"
+        },
+        "spec": {
+          "replicas": 1,
+          "selector": {
+            "app": "jenkins-py",
+            "deploymentconfig": "jenkins-py"
+          },
+          "strategy": {
+            "activeDeadlineSeconds": 21600,
+            "rollingParams": {
+              "intervalSeconds": 1,
+              "maxSurge": "25%",
+              "maxUnavailable": "25%",
+              "timeoutSeconds": 600,
+              "updatePeriodSeconds": 1
+            },
+            "type": "Rolling"
+          },
+          "template": {
+            "metadata": {
+              "labels": {
+                "app": "jenkins-py",
+                "deploymentconfig": "jenkins-py"
+              }
+            },
+            "spec": {
+              "containers": [{
+                "volumeMounts": [
+                  {
+                    "name": "configs-secret",
+                    "mountPath": "/etc/configs-secret/",
+                    "readOnly": true
+                  },
+                  {
+                    "mountPath": "/var/jenkins_home",
+                    "name": "jenkins-py-volume-1"
+                },{
+                  "name": "kubecfg-volume",
+                  "mountPath": "/tmp/.kube/",
+                  "readOnly": true
+                }
+                ],
+                "securityContext": {},
+                "image": "singhp11/centos-jenkins-py",
+                "imagePullPolicy": "Always",
+                "name": "jenkins-py",
+                "ports": [
+                    {
+                        "containerPort": 50000,
+                        "protocol": "TCP"
+                    },
+                    {
+                        "containerPort": 8080,
+                        "protocol": "TCP"
+                    }
+                ],
+                "resources": {},
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "env": [{
+                    "name": "OPENSHIFTMGR_PROJECT",
+                    "value": "jenkins"
+                  },{
+                    "name": "KUBECFG_PATH",
+                    "value": "/tmp/.kube/config"
+                  }
+                ]
+              }],
+              "volumes": [{
+                "name": "kubecfg-volume",
+                "secret": {
+                  "secretName": "kubecfg"
+                }
+              },
+                {
+                  "name": "configs-secret",
+                  "secret": {
+                    "secretName": "configs-secret"
+                  }
+                }, {
+                    "emptyDir": {},
+                    "name": "jenkins-py-volume-1"
+                }
+              ],
+              "dnsPolicy": "ClusterFirst",
+              "restartPolicy": "Always",
+              "terminationGracePeriodSeconds": 30
+            }
+          },
+          "test": false,
+          "triggers": [{
+            "type": "ConfigChange"
+          }]
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Service",
+        "metadata": {
+          "labels": {
+            "app": "jenkins-py"
+          },
+          "name": "jenkins-py"
+        },
+        "spec": {
+        "ports": [
+            {
+                "name": "8080-tcp",
+                "port": 8080,
+                "protocol": "TCP",
+                "targetPort": 8080
+            },
+            {
+                "name": "50000-tcp",
+                "port": 50000,
+                "protocol": "TCP",
+                "targetPort": 50000
+            }
+        ],
+          "selector": {
+            "app": "jenkins-py",
+            "deploymentconfig": "jenkins-py"
+          },
+          "sessionAffinity": "None",
+          "type": "ClusterIP"
+        }
+      },
+      {
+        "apiVersion": "v1",
+        "kind": "Route",
+        "metadata": {
+          "annotations": {
+            "openshift.io/host.generated": "true"
+          },
+          "name": "jenkins-py"
+        },
+        "spec": {
+          "port": {
+            "targetPort": "8080-tcp"
+          },
+          "to": {
+            "kind": "Service",
+            "name": "jenkins-py",
+            "weight": 100
+          }
+        }
+      }
+  ],
+    "labels": {
+      "template": "application-template-jenkins-py-openshift"
+    }
+  }
