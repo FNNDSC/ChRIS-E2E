@@ -3,4 +3,4 @@
 IP=$1
 JOBID=$2
 
-pfconclient http://$IP/api/v1/ $JOBID run --cmd_args '--saveinputmeta --saveoutputmeta --prefix test' --auid cube --number_of_workers 1 --cpu_limit 4000M --memory_limit 4000Mi --gpu_limit 0 --image fnndsc/pl-simpledsapp --selfexec simpledsapp --selfpath /usr/local/bin --execshell python3 --type ds /tmp/small /tmp/$JOBID
+pfconclient http://$IP/api/v1/ $JOBID run --cmd_args '--saveinputmeta --saveoutputmeta --prefix test' --auid cube --number_of_workers 1 --cpu_limit 4000 --memory_limit 4000 --gpu_limit 0 --image fnndsc/pl-simpledsapp --selfexec simpledsapp --selfpath /usr/local/bin --execshell python3 --type ds /tmp/small /tmp/$JOBID
