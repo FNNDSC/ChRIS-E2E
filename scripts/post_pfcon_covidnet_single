@@ -1,0 +1,38 @@
+#!/usr/bin/env bash  
+
+# 4 consecutive calls on pfcon that runs the covid-net workflow
+# IP is the service endpoint of pfcon
+# JOBID should be unique
+# IMAGE should be one of the images in pl-lungct, be sure to include the .dcm
+# PATIENTID is only used in pdf generation
+
+IP=$1
+JOBID=$2
+IMAGE=$3
+PATIENTID=$4
+
+mkdir -p /tmp/null
+
+pfconclient http://$IP/api/v1/ $JOBID-lungct run \
+--cmd_args '--saveinputmeta --saveoutputmeta' \
+--auid developer --number_of_workers 1 --cpu_limit 4000 --memory_limit 4000 --gpu_limit 0 \
+--image fnndsc/pl-lungct --selfexec lungct \
+--selfpath /usr/local/bin --execshell python3 --type fs /tmp/null /tmp/$JOBID-lungct
+
+pfconclient http://$IP/api/v1/ $JOBID-med2img run \
+--cmd_args "--saveinputmeta --saveoutputmeta --convertOnlySingleDICOM --inputFile $IMAGE" \
+--auid developer --number_of_workers 1 --cpu_limit 4000 --memory_limit 4000 --gpu_limit 0 \
+--image fnndsc/pl-med2img --selfexec med2img \
+--selfpath /usr/local/bin --execshell python3 --type ds /tmp/$JOBID-lungct /tmp/$JOBID-med2img
+
+pfconclient http://$IP/api/v1/ $JOBID-covidnet run \
+--cmd_args "--saveinputmeta --saveoutputmeta --imagefile sample.png" \
+--auid developer --number_of_workers 1 --cpu_limit 4000 --memory_limit 4000 --gpu_limit 0 \
+--image fnndsc/pl-covidnet --selfexec covidnet \
+--selfpath /usr/local/bin --execshell python3 --type ds /tmp/$JOBID-med2img /tmp/$JOBID-covidnet
+
+pfconclient http://$IP/api/v1/ $JOBID-pdfgeneration run \
+--cmd_args "--saveinputmeta --saveoutputmeta --imagefile sample.png --patientId $PATIENTID" \
+--auid developer --number_of_workers 1 --cpu_limit 4000 --memory_limit 4000 --gpu_limit 0 \
+--image fnndsc/pl-pdfgeneration --selfexec pdfgeneration \
+--selfpath /usr/local/bin --execshell python3 --type ds /tmp/$JOBID-covidnet /tmp/$JOBID-pdfgeneration

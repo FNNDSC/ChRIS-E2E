@@ -1,0 +1,12 @@
+#!/usr/bin/env bash  
+
+IP=$1
+JOBID=$2
+
+mkdir -p /tmp/null
+
+pfconclient http://$IP/api/v1/ $JOBID submit \
+--cmd_args '--saveinputmeta --saveoutputmeta' \
+--auid developer --number_of_workers 1 --cpu_limit 4000 --memory_limit 4000 --gpu_limit 0 \
+--image fnndsc/pl-lungct --selfexec lungct \
+--selfpath /usr/local/bin --execshell python3 --type fs /tmp/dummy /tmp/$JOBID

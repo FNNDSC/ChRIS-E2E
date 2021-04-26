@@ -1,0 +1,12 @@
+#!/usr/bin/env bash  
+
+IP=$1
+JOBID=$2
+PREVID=$3
+PATIENTID=$4
+
+pfconclient http://$IP/api/v1/ $JOBID run \
+--cmd_args "--saveinputmeta --saveoutputmeta --imagefile sample.png --patientId $PATIENTID" \
+--auid developer --number_of_workers 1 --cpu_limit 4000 --memory_limit 4000 --gpu_limit 0 \
+--image fnndsc/pl-pdfgeneration --selfexec pdfgeneration \
+--selfpath /usr/local/bin --execshell python3 --type ds /tmp/$PREVID /tmp/$JOBID
